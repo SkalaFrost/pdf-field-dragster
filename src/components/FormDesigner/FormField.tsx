@@ -1,16 +1,19 @@
 import { Type, CheckSquare, Square, LucideIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface Field {
   id: string;
   type: string;
   x: number;
   y: number;
+  value?: string;
 }
 
 interface FormFieldProps {
   field: Field;
   isSelected: boolean;
   onClick: () => void;
+  onValueChange: (id: string, value: string) => void;
 }
 
 type FieldIcons = {
@@ -23,10 +26,15 @@ const fieldIcons: FieldIcons = {
   radio: Square,
 };
 
-export const FormField = ({ field, isSelected, onClick }: FormFieldProps) => {
+export const FormField = ({ field, isSelected, onClick, onValueChange }: FormFieldProps) => {
   const Icon = fieldIcons[field.type];
 
   if (!Icon) return null;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onValueChange(field.id, e.target.value);
+    e.stopPropagation(); // Prevent triggering the onClick event
+  };
 
   return (
     <div
@@ -38,7 +46,18 @@ export const FormField = ({ field, isSelected, onClick }: FormFieldProps) => {
     >
       <div className="flex items-center gap-2 bg-white border rounded p-2">
         <Icon className="w-4 h-4" />
-        <span className="text-sm">{field.type}</span>
+        {field.type === 'text' ? (
+          <Input
+            type="text"
+            value={field.value || ''}
+            onChange={handleInputChange}
+            onClick={(e) => e.stopPropagation()}
+            className="h-8 w-40"
+            placeholder="Enter text..."
+          />
+        ) : (
+          <span className="text-sm">{field.type}</span>
+        )}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ interface Field {
   type: string;
   x: number;
   y: number;
+  value?: string;
 }
 
 export const Canvas = () => {
@@ -34,6 +35,7 @@ export const Canvas = () => {
       type: fieldType,
       x,
       y,
+      value: '',
     };
 
     setFields((prev) => [...prev, newField]);
@@ -58,6 +60,12 @@ export const Canvas = () => {
         description: "Your template has been loaded"
       });
     }
+  };
+
+  const handleFieldValueChange = (id: string, value: string) => {
+    setFields(prev => prev.map(field => 
+      field.id === id ? { ...field, value } : field
+    ));
   };
 
   const triggerFileInput = () => {
@@ -107,6 +115,7 @@ export const Canvas = () => {
             field={field}
             isSelected={selectedField === field.id}
             onClick={() => setSelectedField(field.id)}
+            onValueChange={handleFieldValueChange}
           />
         ))}
       </div>
