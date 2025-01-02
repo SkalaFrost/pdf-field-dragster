@@ -25,20 +25,37 @@ export const Canvas = () => {
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    const fieldType = e.dataTransfer.getData("fieldType");
+    const fieldId = e.dataTransfer.getData('fieldId');
+    const fieldType = e.dataTransfer.getData('fieldType');
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
 
-    const newField: Field = {
-      id: `${fieldType}-${Date.now()}`,
-      type: fieldType,
-      x,
-      y,
-      value: '',
-    };
+    if (fieldId) {
+      // This is a field being repositioned
+      const offsetData = e.dataTransfer.getData('offset');
+      const offset = offsetData ? JSON.parse(offsetData) : { x: 0, y: 0 };
+      const newX = e.clientX - rect.left - offset.x;
+      const newY = e.clientY - rect.top - offset.y;
 
-    setFields((prev) => [...prev, newField]);
+      setFields(prev => prev.map(field => 
+        field.id === fieldId 
+          ? { ...field, x: newX, y: newY }
+          : field
+      ));
+    } else if (fieldType) {
+      // This is a new field being added
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      const newField: Field = {
+        id: `${fieldType}-${Date.now()}`,
+        type: fieldType,
+        x,
+        y,
+        value: '',
+      };
+
+      setFields((prev) => [...prev, newField]);
+    }
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,6 +82,12 @@ export const Canvas = () => {
   const handleFieldValueChange = (id: string, value: string) => {
     setFields(prev => prev.map(field => 
       field.id === id ? { ...field, value } : field
+    ));
+  };
+
+  const handlePositionChange = (id: string, x: number, y: number) => {
+    setFields(prev => prev.map(field =>
+      field.id === id ? { ...field, x, y } : field
     ));
   };
 
@@ -106,7 +129,6 @@ export const Canvas = () => {
           </object>
         )}
         
-        {/* Grid overlay */}
         <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
         
         {fields.map((field) => (
@@ -116,6 +138,7 @@ export const Canvas = () => {
             isSelected={selectedField === field.id}
             onClick={() => setSelectedField(field.id)}
             onValueChange={handleFieldValueChange}
+            onPositionChange={handlePositionChange}
           />
         ))}
       </div>
