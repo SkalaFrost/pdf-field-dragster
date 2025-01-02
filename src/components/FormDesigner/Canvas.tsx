@@ -92,9 +92,9 @@ export const Canvas = () => {
           <object
             data={pdfUrl}
             type="application/pdf"
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full pointer-events-none"
           >
-            <embed src={pdfUrl} type="application/pdf" className="w-full h-full" />
+            <embed src={pdfUrl} type="application/pdf" className="w-full h-full pointer-events-none" />
           </object>
         )}
         
