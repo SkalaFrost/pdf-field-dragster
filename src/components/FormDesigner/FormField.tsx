@@ -1,4 +1,4 @@
-import { Type, CheckSquare, Square } from "lucide-react";
+import { Type, CheckSquare, Square, LucideIcon } from "lucide-react";
 
 interface Field {
   id: string;
@@ -13,14 +13,20 @@ interface FormFieldProps {
   onClick: () => void;
 }
 
-const fieldIcons = {
+type FieldIcons = {
+  [key: string]: LucideIcon;
+};
+
+const fieldIcons: FieldIcons = {
   text: Type,
   checkbox: CheckSquare,
   radio: Square,
 };
 
 export const FormField = ({ field, isSelected, onClick }: FormFieldProps) => {
-  const Icon = fieldIcons[field.type as keyof typeof fieldIcons];
+  const Icon = fieldIcons[field.type];
+
+  if (!Icon) return null;
 
   return (
     <div
