@@ -65,7 +65,7 @@ export const FormField = ({
 
   return (
     <div
-      className={`absolute p-2 rounded cursor-move transition-all ${
+      className={`absolute p-2 rounded cursor-move transition-all group ${
         isSelected ? "ring-2 ring-blue-500" : ""
       }`}
       style={{ left: field.x, top: field.y }}
@@ -88,10 +88,10 @@ export const FormField = ({
         minWidth={150}
         minHeight={40}
       >
-        <div className="relative flex items-center gap-2 bg-white border rounded p-2 w-full h-full">
+        <div className="relative flex items-center gap-2 bg-white border rounded p-2 w-full h-full group">
           <button
             onClick={handleDelete}
-            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-opacity z-10"
           >
             <X className="w-3 h-3" />
           </button>
