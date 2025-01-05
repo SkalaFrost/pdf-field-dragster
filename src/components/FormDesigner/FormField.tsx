@@ -63,9 +63,60 @@ export const FormField = ({
     onDelete(field.id);
   };
 
+  const renderField = () => {
+    const baseContent = (
+      <div className="relative flex items-center gap-2 bg-white rounded p-2 w-full h-full">
+        <button
+          onClick={handleDelete}
+          className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 z-10"
+        >
+          <X className="w-3 h-3" />
+        </button>
+        <Icon className="w-4 h-4 shrink-0" />
+        {field.type === 'text' ? (
+          <Input
+            type="text"
+            value={field.value || ''}
+            onChange={handleInputChange}
+            onClick={(e) => e.stopPropagation()}
+            className="h-8 w-full"
+            placeholder="Enter text..."
+          />
+        ) : (
+          <span className="text-sm">{field.type}</span>
+        )}
+      </div>
+    );
+
+    if (field.type === 'text') {
+      return (
+        <Resizable
+          size={{ 
+            width: field.width || 200, 
+            height: field.height || 40 
+          }}
+          onResizeStop={(e, direction, ref, d) => {
+            onResize(
+              field.id, 
+              (field.width || 200) + d.width, 
+              (field.height || 40) + d.height
+            );
+          }}
+          minWidth={150}
+          minHeight={40}
+          className="border border-dotted border-gray-300"
+        >
+          {baseContent}
+        </Resizable>
+      );
+    }
+
+    return baseContent;
+  };
+
   return (
     <div
-      className={`absolute p-2 rounded cursor-move transition-all group ${
+      className={`absolute cursor-move transition-all ${
         isSelected ? "ring-2 ring-blue-500" : ""
       }`}
       style={{ left: field.x, top: field.y }}
@@ -73,43 +124,7 @@ export const FormField = ({
       draggable="true"
       onDragStart={handleDragStart}
     >
-      <Resizable
-        size={{ 
-          width: field.width || 200, 
-          height: field.height || 'auto' 
-        }}
-        onResizeStop={(e, direction, ref, d) => {
-          onResize(
-            field.id, 
-            (field.width || 200) + d.width, 
-            (field.height || 40) + d.height
-          );
-        }}
-        minWidth={150}
-        minHeight={40}
-      >
-        <div className="relative flex items-center gap-2 bg-white border rounded p-2 w-full h-full group">
-          <button
-            onClick={handleDelete}
-            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-opacity z-10"
-          >
-            <X className="w-3 h-3" />
-          </button>
-          <Icon className="w-4 h-4 shrink-0" />
-          {field.type === 'text' ? (
-            <Input
-              type="text"
-              value={field.value || ''}
-              onChange={handleInputChange}
-              onClick={(e) => e.stopPropagation()}
-              className="h-8 w-full"
-              placeholder="Enter text..."
-            />
-          ) : (
-            <span className="text-sm">{field.type}</span>
-          )}
-        </div>
-      </Resizable>
+      {renderField()}
     </div>
   );
 };
