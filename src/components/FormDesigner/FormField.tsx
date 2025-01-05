@@ -1,5 +1,6 @@
-import { Type, CheckSquare, Square, LucideIcon } from "lucide-react";
+import { Type, CheckSquare, Square, LucideIcon, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Resizable } from "re-resizable";
 
 interface Field {
   id: string;
@@ -7,6 +8,8 @@ interface Field {
   x: number;
   y: number;
   value?: string;
+  width?: number;
+  height?: number;
 }
 
 interface FormFieldProps {
@@ -15,6 +18,8 @@ interface FormFieldProps {
   onClick: () => void;
   onValueChange: (id: string, value: string) => void;
   onPositionChange: (id: string, x: number, y: number) => void;
+  onDelete: (id: string) => void;
+  onResize: (id: string, width: number, height: number) => void;
 }
 
 type FieldIcons = {
@@ -32,7 +37,9 @@ export const FormField = ({
   isSelected, 
   onClick, 
   onValueChange,
-  onPositionChange 
+  onPositionChange,
+  onDelete,
+  onResize
 }: FormFieldProps) => {
   const Icon = fieldIcons[field.type];
 
@@ -45,11 +52,15 @@ export const FormField = ({
 
   const handleDragStart = (e: React.DragEvent) => {
     e.dataTransfer.setData('fieldId', field.id);
-    // Store the mouse offset relative to the field's position
     const rect = e.currentTarget.getBoundingClientRect();
     const offsetX = e.clientX - rect.left;
     const offsetY = e.clientY - rect.top;
     e.dataTransfer.setData('offset', JSON.stringify({ x: offsetX, y: offsetY }));
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDelete(field.id);
   };
 
   return (
@@ -62,21 +73,43 @@ export const FormField = ({
       draggable="true"
       onDragStart={handleDragStart}
     >
-      <div className="flex items-center gap-2 bg-white border rounded p-2">
-        <Icon className="w-4 h-4" />
-        {field.type === 'text' ? (
-          <Input
-            type="text"
-            value={field.value || ''}
-            onChange={handleInputChange}
-            onClick={(e) => e.stopPropagation()}
-            className="h-8 w-40"
-            placeholder="Enter text..."
-          />
-        ) : (
-          <span className="text-sm">{field.type}</span>
-        )}
-      </div>
+      <Resizable
+        size={{ 
+          width: field.width || 200, 
+          height: field.height || 'auto' 
+        }}
+        onResizeStop={(e, direction, ref, d) => {
+          onResize(
+            field.id, 
+            (field.width || 200) + d.width, 
+            (field.height || 40) + d.height
+          );
+        }}
+        minWidth={150}
+        minHeight={40}
+      >
+        <div className="relative flex items-center gap-2 bg-white border rounded p-2 w-full h-full">
+          <button
+            onClick={handleDelete}
+            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <X className="w-3 h-3" />
+          </button>
+          <Icon className="w-4 h-4 shrink-0" />
+          {field.type === 'text' ? (
+            <Input
+              type="text"
+              value={field.value || ''}
+              onChange={handleInputChange}
+              onClick={(e) => e.stopPropagation()}
+              className="h-8 w-full"
+              placeholder="Enter text..."
+            />
+          ) : (
+            <span className="text-sm">{field.type}</span>
+          )}
+        </div>
+      </Resizable>
     </div>
   );
 };

@@ -10,6 +10,8 @@ interface Field {
   x: number;
   y: number;
   value?: string;
+  width?: number;
+  height?: number;
 }
 
 export const Canvas = () => {
@@ -30,7 +32,6 @@ export const Canvas = () => {
     const rect = e.currentTarget.getBoundingClientRect();
 
     if (fieldId) {
-      // This is a field being repositioned
       const offsetData = e.dataTransfer.getData('offset');
       const offset = offsetData ? JSON.parse(offsetData) : { x: 0, y: 0 };
       const newX = e.clientX - rect.left - offset.x;
@@ -42,7 +43,6 @@ export const Canvas = () => {
           : field
       ));
     } else if (fieldType) {
-      // This is a new field being added
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
 
@@ -52,6 +52,8 @@ export const Canvas = () => {
         x,
         y,
         value: '',
+        width: 200,
+        height: 40,
       };
 
       setFields((prev) => [...prev, newField]);
@@ -88,6 +90,23 @@ export const Canvas = () => {
   const handlePositionChange = (id: string, x: number, y: number) => {
     setFields(prev => prev.map(field =>
       field.id === id ? { ...field, x, y } : field
+    ));
+  };
+
+  const handleFieldDelete = (id: string) => {
+    setFields(prev => prev.filter(field => field.id !== id));
+    if (selectedField === id) {
+      setSelectedField(null);
+    }
+    toast({
+      title: "Field deleted",
+      description: "The form field has been removed"
+    });
+  };
+
+  const handleFieldResize = (id: string, width: number, height: number) => {
+    setFields(prev => prev.map(field =>
+      field.id === id ? { ...field, width, height } : field
     ));
   };
 
@@ -139,6 +158,8 @@ export const Canvas = () => {
             onClick={() => setSelectedField(field.id)}
             onValueChange={handleFieldValueChange}
             onPositionChange={handlePositionChange}
+            onDelete={handleFieldDelete}
+            onResize={handleFieldResize}
           />
         ))}
       </div>
