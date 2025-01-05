@@ -65,21 +65,21 @@ export const FormField = ({
 
   const renderField = () => {
     const baseContent = (
-      <div className="relative flex items-center gap-2 bg-white rounded p-2 w-full h-full">
+      <div className="relative flex items-center gap-2 bg-[#FEF7CD] rounded p-2 w-full h-full">
         <button
           onClick={handleDelete}
           className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 z-10"
         >
           <X className="w-3 h-3" />
         </button>
-        <Icon className="w-4 h-4 shrink-0" />
+        <Icon className="w-4 h-4 shrink-0 text-[#F97316]" />
         {field.type === 'text' ? (
           <Input
             type="text"
             value={field.value || ''}
             onChange={handleInputChange}
             onClick={(e) => e.stopPropagation()}
-            className="h-8 w-full"
+            className="h-8 w-full bg-[#FEF7CD] border-none focus-visible:ring-0 focus-visible:ring-offset-0"
             placeholder="Enter text..."
           />
         ) : (
@@ -104,7 +104,22 @@ export const FormField = ({
           }}
           minWidth={150}
           minHeight={40}
-          className="border border-dotted border-gray-300"
+          className="border-2 border-dotted border-[#F97316]"
+          handleStyles={{
+            bottomRight: {
+              right: '-6px',
+              bottom: '-6px',
+              cursor: 'se-resize',
+              backgroundColor: '#F97316',
+              borderRadius: '50%',
+              width: '12px',
+              height: '12px',
+              border: '2px solid white'
+            }
+          }}
+          handleClasses={{
+            bottomRight: 'hover:scale-110 transition-transform'
+          }}
         >
           {baseContent}
         </Resizable>
@@ -117,7 +132,7 @@ export const FormField = ({
   return (
     <div
       className={`absolute cursor-move transition-all ${
-        isSelected ? "ring-2 ring-blue-500" : ""
+        isSelected ? "ring-2 ring-[#F97316]" : ""
       }`}
       style={{ left: field.x, top: field.y }}
       onClick={onClick}
