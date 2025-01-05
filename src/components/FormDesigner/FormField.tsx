@@ -104,6 +104,16 @@ export const FormField = ({
           }}
           minWidth={150}
           minHeight={40}
+          enable={{
+            top: false,
+            right: true,
+            bottom: true,
+            left: false,
+            topRight: false,
+            bottomRight: true,
+            bottomLeft: false,
+            topLeft: false
+          }}
           className="border-2 border-dotted border-[#F97316]"
           handleStyles={{
             bottomRight: {
