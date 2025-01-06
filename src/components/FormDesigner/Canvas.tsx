@@ -113,13 +113,13 @@ export const Canvas = () => {
         const PDF_HEIGHT = 1056; // 11 inches * 96 DPI
         
         // Calculate maximum allowed dimensions based on field position
-        const maxWidth = PDF_WIDTH - field.x;
-        const maxHeight = PDF_HEIGHT - field.y;
+        const maxWidth = Math.max(150, Math.min(width, PDF_WIDTH - field.x));
+        const maxHeight = Math.max(40, Math.min(height, PDF_HEIGHT - field.y));
 
         return {
           ...field,
-          width: Math.min(Math.max(150, width), maxWidth),  // Minimum width of 150px
-          height: Math.min(Math.max(40, height), maxHeight)  // Minimum height of 40px
+          width: maxWidth,
+          height: maxHeight
         };
       }
       return field;
