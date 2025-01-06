@@ -19,6 +19,7 @@ export const Canvas = () => {
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const onDragOver = (e: React.DragEvent) => {
@@ -105,9 +106,21 @@ export const Canvas = () => {
   };
 
   const handleFieldResize = (id: string, width: number, height: number) => {
-    setFields(prev => prev.map(field =>
-      field.id === id ? { ...field, width, height } : field
-    ));
+    setFields(prev => prev.map(field => {
+      if (field.id === id) {
+        const canvasRect = canvasRef.current?.getBoundingClientRect();
+        if (canvasRect) {
+          const maxWidth = canvasRect.width - field.x;
+          const maxHeight = canvasRect.height - field.y;
+          return {
+            ...field,
+            width: Math.min(width, maxWidth),
+            height: Math.min(height, maxHeight)
+          };
+        }
+      }
+      return field;
+    }));
   };
 
   const triggerFileInput = () => {
@@ -134,6 +147,7 @@ export const Canvas = () => {
       </div>
       
       <div 
+        ref={canvasRef}
         className="w-[816px] h-[1056px] mx-auto my-8 bg-white shadow-lg relative"
         onDragOver={onDragOver}
         onDrop={onDrop}
