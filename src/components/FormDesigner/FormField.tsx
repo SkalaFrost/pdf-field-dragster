@@ -1,6 +1,6 @@
 import { Type, CheckSquare, Square, LucideIcon, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Resizable } from "re-resizable";
+import { Resizable, ResizeStartCallback } from "re-resizable";
 
 interface Field {
   id: string;
@@ -63,8 +63,10 @@ export const FormField = ({
     onDelete(field.id);
   };
 
-  const handleResizeStart = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleResizeStart: ResizeStartCallback = (e) => {
+    if (e.type === 'mousedown') {
+      e.stopPropagation();
+    }
   };
 
   const renderField = () => {
