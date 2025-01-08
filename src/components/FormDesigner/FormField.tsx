@@ -63,6 +63,10 @@ export const FormField = ({
     onDelete(field.id);
   };
 
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   const renderField = () => {
     const baseContent = (
       <div className="relative flex items-center gap-2 bg-[#FEF7CD] rounded p-2 w-full h-full">
@@ -95,6 +99,7 @@ export const FormField = ({
             width: field.width || 200, 
             height: field.height || 40 
           }}
+          onResizeStart={handleResizeStart}
           onResizeStop={(e, direction, ref, d) => {
             onResize(
               field.id, 
@@ -124,7 +129,8 @@ export const FormField = ({
               borderRadius: '50%',
               width: '12px',
               height: '12px',
-              border: '2px solid white'
+              border: '2px solid white',
+              zIndex: 10
             }
           }}
           handleClasses={{
