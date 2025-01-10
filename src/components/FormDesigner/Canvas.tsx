@@ -19,7 +19,8 @@ const defaultTemplate: Template = {
         characterSpacing: 0,
         lineHeight: 1,
         fontName: "Helvetica",
-        fontColor: "#000000"
+        fontColor: "#000000",
+        name: "text1"
       },
       {
         type: "checkbox",
@@ -31,7 +32,8 @@ const defaultTemplate: Template = {
         characterSpacing: 0,
         lineHeight: 1,
         fontName: "Helvetica",
-        fontColor: "#000000"
+        fontColor: "#000000",
+        name: "checkbox1"
       }
     ]
   ]
@@ -48,7 +50,7 @@ export const Canvas = () => {
     if (containerRef.current && !designerRef.current) {
       designerRef.current = new Designer({
         domContainer: containerRef.current,
-        template,
+        template: template as Template,
         options: {
           theme: {
             token: {
