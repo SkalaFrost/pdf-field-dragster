@@ -1,67 +1,55 @@
-import { useState, useRef } from "react";
-import { FormField } from "./FormField";
+import { useEffect, useRef, useState } from "react";
+import { Designer } from "@pdfme/ui";
+import { Template } from "@pdfme/common";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-interface Field {
-  id: string;
-  type: string;
-  x: number;
-  y: number;
-  value?: string;
-  width?: number;
-  height?: number;
-}
+const defaultTemplate: Template = {
+  basePdf: null,
+  schemas: [
+    {
+      text: { type: 'text', position: { x: 0, y: 0 }, width: 150, height: 20 },
+      checkbox: { type: 'checkbox', position: { x: 0, y: 0 }, width: 20, height: 20 },
+    },
+  ],
+};
 
 export const Canvas = () => {
-  const [fields, setFields] = useState<Field[]>([]);
-  const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const designerRef = useRef<Designer | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [template, setTemplate] = useState<Template>(defaultTemplate);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const canvasRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
-  const onDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-  };
+  useEffect(() => {
+    if (containerRef.current && !designerRef.current) {
+      designerRef.current = new Designer({
+        domContainer: containerRef.current,
+        template,
+        options: {
+          theme: {
+            token: {
+              colorPrimary: '#F97316',
+              borderRadius: 4,
+            },
+          },
+        },
+      });
 
-  const onDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    const fieldId = e.dataTransfer.getData('fieldId');
-    const fieldType = e.dataTransfer.getData('fieldType');
-    const rect = e.currentTarget.getBoundingClientRect();
-
-    if (fieldId) {
-      const offsetData = e.dataTransfer.getData('offset');
-      const offset = offsetData ? JSON.parse(offsetData) : { x: 0, y: 0 };
-      const newX = e.clientX - rect.left - offset.x;
-      const newY = e.clientY - rect.top - offset.y;
-
-      setFields(prev => prev.map(field => 
-        field.id === fieldId 
-          ? { ...field, x: newX, y: newY }
-          : field
-      ));
-    } else if (fieldType) {
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-
-      const newField: Field = {
-        id: `${fieldType}-${Date.now()}`,
-        type: fieldType,
-        x,
-        y,
-        value: '',
-        width: 200,
-        height: 40,
-      };
-
-      setFields((prev) => [...prev, newField]);
+      designerRef.current.onSaveTemplate((newTemplate) => {
+        setTemplate(newTemplate);
+      });
     }
-  };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    return () => {
+      if (designerRef.current) {
+        designerRef.current.destroy();
+      }
+    };
+  }, []);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.type !== 'application/pdf') {
@@ -73,57 +61,31 @@ export const Canvas = () => {
         return;
       }
 
-      const url = URL.createObjectURL(file);
-      setPdfUrl(url);
-      toast({
-        title: "PDF uploaded successfully",
-        description: "Your template has been loaded"
-      });
-    }
-  };
-
-  const handleFieldValueChange = (id: string, value: string) => {
-    setFields(prev => prev.map(field => 
-      field.id === id ? { ...field, value } : field
-    ));
-  };
-
-  const handlePositionChange = (id: string, x: number, y: number) => {
-    setFields(prev => prev.map(field =>
-      field.id === id ? { ...field, x, y } : field
-    ));
-  };
-
-  const handleFieldDelete = (id: string) => {
-    setFields(prev => prev.filter(field => field.id !== id));
-    if (selectedField === id) {
-      setSelectedField(null);
-    }
-    toast({
-      title: "Field deleted",
-      description: "The form field has been removed"
-    });
-  };
-
-  const handleFieldResize = (id: string, width: number, height: number) => {
-    setFields(prev => prev.map(field => {
-      if (field.id === id) {
-        // PDF dimensions (in pixels for standard 8.5x11 at 96 DPI)
-        const PDF_WIDTH = 816;  // 8.5 inches * 96 DPI
-        const PDF_HEIGHT = 1056; // 11 inches * 96 DPI
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const basePdf = await arrayBuffer;
         
-        // Calculate maximum allowed dimensions based on field position
-        const maxWidth = Math.max(150, Math.min(width, PDF_WIDTH - field.x));
-        const maxHeight = Math.max(40, Math.min(height, PDF_HEIGHT - field.y));
+        if (designerRef.current) {
+          const newTemplate = {
+            ...template,
+            basePdf,
+          };
+          designerRef.current.updateTemplate(newTemplate);
+          setTemplate(newTemplate);
+        }
 
-        return {
-          ...field,
-          width: maxWidth,
-          height: maxHeight
-        };
+        toast({
+          title: "PDF uploaded successfully",
+          description: "Your template has been loaded"
+        });
+      } catch (error) {
+        toast({
+          variant: "destructive",
+          title: "Error uploading PDF",
+          description: "There was an error loading your PDF file"
+        });
       }
-      return field;
-    }));
+    }
   };
 
   const triggerFileInput = () => {
@@ -131,7 +93,7 @@ export const Canvas = () => {
   };
 
   return (
-    <div className="flex-1 bg-canvas relative overflow-auto min-h-screen">
+    <div className="flex-1 bg-canvas relative overflow-hidden min-h-screen">
       <div className="fixed top-4 right-4 z-10">
         <input
           type="file"
@@ -150,36 +112,9 @@ export const Canvas = () => {
       </div>
       
       <div 
-        ref={canvasRef}
-        className="w-[816px] h-[1056px] mx-auto my-8 bg-white shadow-lg relative"
-        onDragOver={onDragOver}
-        onDrop={onDrop}
-      >
-        {pdfUrl && (
-          <object
-            data={pdfUrl}
-            type="application/pdf"
-            className="absolute inset-0 w-full h-full pointer-events-none"
-          >
-            <embed src={pdfUrl} type="application/pdf" className="w-full h-full pointer-events-none" />
-          </object>
-        )}
-        
-        <div className="absolute inset-0 bg-grid opacity-10 pointer-events-none" />
-        
-        {fields.map((field) => (
-          <FormField
-            key={field.id}
-            field={field}
-            isSelected={selectedField === field.id}
-            onClick={() => setSelectedField(field.id)}
-            onValueChange={handleFieldValueChange}
-            onPositionChange={handlePositionChange}
-            onDelete={handleFieldDelete}
-            onResize={handleFieldResize}
-          />
-        ))}
-      </div>
+        ref={containerRef}
+        className="w-full h-full"
+      />
     </div>
   );
 };
