@@ -9,20 +9,20 @@ const defaultTemplate: Template = {
   basePdf: null,
   schemas: [
     {
-      a: { 
-        type: 'text',
-        position: { x: 0, y: 0 },
-        width: 150,
-        height: 20
-      },
-      b: {
-        type: 'checkbox',
-        position: { x: 0, y: 0 },
-        width: 20,
-        height: 20
-      }
+      name: "field1",
+      type: "text",
+      position: { x: 0, y: 0 },
+      width: 150,
+      height: 20,
+    },
+    {
+      name: "field2",
+      type: "checkbox",
+      position: { x: 0, y: 0 },
+      width: 20,
+      height: 20,
     }
-  ],
+  ]
 };
 
 export const Canvas = () => {
