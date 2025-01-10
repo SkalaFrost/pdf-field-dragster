@@ -64,9 +64,16 @@ export const FormField = ({
   };
 
   const handleResizeStart: ResizeStartCallback = (e) => {
-    if (e.type === 'mousedown') {
+    if (e.type === 'mousedown' || e.type === 'touchstart') {
       e.stopPropagation();
+      // Prevent text selection during resize
+      document.body.style.userSelect = 'none';
     }
+  };
+
+  const handleResizeStop = () => {
+    // Re-enable text selection after resize
+    document.body.style.userSelect = '';
   };
 
   const renderField = () => {
@@ -103,6 +110,7 @@ export const FormField = ({
           }}
           onResizeStart={handleResizeStart}
           onResizeStop={(e, direction, ref, d) => {
+            handleResizeStop();
             onResize(
               field.id, 
               (field.width || 200) + d.width, 
