@@ -9,9 +9,19 @@ const defaultTemplate: Template = {
   basePdf: null,
   schemas: [
     {
-      text: { type: 'text', position: { x: 0, y: 0 }, width: 150, height: 20 },
-      checkbox: { type: 'checkbox', position: { x: 0, y: 0 }, width: 20, height: 20 },
-    },
+      a: { 
+        type: 'text',
+        position: { x: 0, y: 0 },
+        width: 150,
+        height: 20
+      },
+      b: {
+        type: 'checkbox',
+        position: { x: 0, y: 0 },
+        width: 20,
+        height: 20
+      }
+    }
   ],
 };
 
@@ -37,7 +47,7 @@ export const Canvas = () => {
         },
       });
 
-      designerRef.current.onSaveTemplate((newTemplate) => {
+      designerRef.current.onSaveTemplate((newTemplate: Template) => {
         setTemplate(newTemplate);
       });
     }
