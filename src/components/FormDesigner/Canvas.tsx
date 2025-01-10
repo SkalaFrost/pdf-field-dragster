@@ -6,22 +6,34 @@ import { Upload } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const defaultTemplate: Template = {
-  basePdf: null,
+  basePdf: "",
   schemas: [
-    {
-      name: "field1",
-      type: "text",
-      position: { x: 0, y: 0 },
-      width: 150,
-      height: 20,
-    },
-    {
-      name: "field2",
-      type: "checkbox",
-      position: { x: 0, y: 0 },
-      width: 20,
-      height: 20,
-    }
+    [
+      {
+        type: "text",
+        position: { x: 0, y: 0 },
+        width: 150,
+        height: 20,
+        alignment: "left",
+        fontSize: 12,
+        characterSpacing: 0,
+        lineHeight: 1,
+        fontName: "Helvetica",
+        fontColor: "#000000"
+      },
+      {
+        type: "checkbox",
+        position: { x: 0, y: 30 },
+        width: 20,
+        height: 20,
+        alignment: "left",
+        fontSize: 12,
+        characterSpacing: 0,
+        lineHeight: 1,
+        fontName: "Helvetica",
+        fontColor: "#000000"
+      }
+    ]
   ]
 };
 
